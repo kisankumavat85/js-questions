@@ -25,10 +25,14 @@ class MyPromise {
     const reject = (reason) => {
       if (this.#state !== PENDING) return;
 
+      if (this.#catchCallbacks.length === 0) {
+        throw new Error(reason)
+      }
+
       this.#state = REJECTED;
       this.#value = reason;
 
-      this.#thenCallbacks.forEach((cb) => cb(reason));
+      this.#catchCallbacks.forEach((cb) => cb(reason));
     };
     try {
       executor(resolve, reject);
@@ -53,14 +57,15 @@ class MyPromise {
           }
         });
       };
-      const failHandler = (value) => {
+      const failHandler = (error) => {
+        console.log({ error });
         queueMicrotask(() => {
           try {
             if (typeof onFail === "function") {
-              const result = onFail(value);
+              const result = onFail(error);
               resolve(result);
             } else {
-              resolve(value);
+              reject(error);
             }
           } catch (error) {
             reject(error);
@@ -82,23 +87,23 @@ class MyPromise {
   }
 
   catch(cb) {
-    this.then(undefined, cb);
+    return this.then(undefined, cb);
   }
 }
 
 // Uncomment this line to run test cases
-module.exports = MyPromise;
+// module.exports = MyPromise;
 
-// const p2 = new MyPromise((resolve, reject) => reject(5));
-// p2.then((val) => {
-//   console.log("my then 1:", val);
-//   return new MyPromise((resolve) => {
-//     resolve(val + 5);
-//   });
-// }).then((val) => {
-//   console.log("my then 2:", val);
-// });
-// p2.then(100).then((val) => console.log("my then 3", val));
+const p2 = new MyPromise((resolve, reject) => reject(5));
+p2.then((val) => {
+  console.log("my then 1:", val);
+  return new MyPromise((resolve) => {
+    resolve(val + 5);
+  });
+}).then((val) => {
+  console.log("my then 2:", val);
+});
+p2.then(100).then((val) => console.log("my then 3", val));
 
 // const p = new Promise((resolve, reject) => {
 //   reject(5);
