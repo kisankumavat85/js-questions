@@ -1,7 +1,4 @@
-// const MyPromise = require("./my-promise-2.js")
-const MyPromise = require("./my-promise-gpt.js")
-// const MyPromise = require("./my-promise-yt.js")
-// const MyPromise = require("./my-promise-1.js")
+const MyPromise = require("./promise.js")
 // const MyPromise = Promise
 
 const DEFAULT_VALUE = "default"
